@@ -1,5 +1,23 @@
 name: GNU Linux Build
-on: [push, pull_request, workflow_dispatch]
+run-name: "GNU Linux Build ${{ inputs.leg || github.event_name }} ${{ inputs.racecar_run }}"
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      leg:
+        description: "baseline (uninstrumented) or instrumented (under chalk/curiosity)"
+        type: choice
+        options: [instrumented, baseline]
+        default: baseline
+      profile:
+        description: "CrashOverride chalk profile"
+        type: string
+        default: curiosity-tests-racecar
+      racecar_run:
+        description: "racecar correlation token, echoed into the run name"
+        type: string
+        default: ""
 
 # Cancel in-progress workflows when pushing to a branch
 concurrency:
@@ -7,6 +25,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  CHALK_ON: ${{ inputs.leg == 'instrumented' }}
   cache_key: gnu11
   CC: gcc-14
   FC: gfortran-14
